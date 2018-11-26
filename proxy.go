@@ -6,8 +6,10 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/xtaci/smux"
 )
@@ -17,9 +19,10 @@ var nodeSession *smux.Session
 var config = &Configuration{}
 
 type Configuration struct {
-	SeedNode  string `json:"SeedNode"`
-	Listener  string `json:"Listener"`
-	PublicKey string `json:"PublicKey"`
+	SeedList        []string `json:"SeedList"`
+	Listener        string   `json:"Listener"`
+	NodeDialTimeout uint16   `json:"NodeDialTimeout"`
+	PublicKey       string   `json:"PublicKey"`
 }
 
 type RPCResponse struct {
@@ -36,7 +39,11 @@ func connectToNode(force bool) (net.Conn, error) {
 	if nodeConn == nil || force {
 		data := []byte(`{"jsonrpc":"2.0","method":"gethttpproxyaddr","params":{"address":"` + config.PublicKey + `"}}`)
 		r := bytes.NewReader(data)
-		resp, err := http.Post(config.SeedNode, "application/json", r)
+		seeds := config.SeedList
+		rand.Shuffle(len(seeds), func(i int, j int) {
+			seeds[i], seeds[j] = seeds[j], seeds[i]
+		})
+		resp, err := http.Post(seeds[0], "application/json", r)
 		if err != nil {
 			return nil, err
 		}
@@ -51,7 +58,7 @@ func connectToNode(force bool) (net.Conn, error) {
 			return nil, err
 		}
 
-		nodeConn, err = net.Dial("tcp", rpcResp.Result) //TODO: add timeout
+		nodeConn, err = net.DialTimeout("tcp", rpcResp.Result, time.Duration(config.NodeDialTimeout) * time.Second)
 		if err != nil {
 			return nil, err
 		}
