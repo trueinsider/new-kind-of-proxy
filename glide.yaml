@@ -1,3 +1,3 @@
-package: github.com/nknorg/nkn-proxy-client
+package: github.com/trueinsider/new-kind-of-proxy
 import:
 - package: github.com/xtaci/smux
