@@ -1,0 +1,5 @@
+{
+  "SeedNode": "http://testnet-seed-0001.nkn.org:30003",
+  "Listener": ":8888",
+  "PublicKey": ""
+}

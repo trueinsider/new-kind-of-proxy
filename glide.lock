@@ -1,0 +1,8 @@
+hash: 2524298139769874b5cb30256b116192d6d92e2553b90962ee039ebd3adde273
+updated: 2018-11-26T10:13:46.7882837+03:00
+imports:
+- name: github.com/pkg/errors
+  version: 059132a15dd08d6704c67711dae0cf35ab991756
+- name: github.com/xtaci/smux
+  version: f19baee51e87c9f0d42f61380893caad7bfabf3d
+testImports: []
