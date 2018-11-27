@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -25,8 +27,14 @@ type Configuration struct {
 	PublicKey       string   `json:"PublicKey"`
 }
 
+type RPCError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 type RPCResponse struct {
-	Result  string `json:"result"`
+	Result string    `json:"result"`
+	Error  *RPCError `json:"error"`
 }
 
 func pipe(dest io.WriteCloser, src io.ReadCloser) {
@@ -56,6 +64,9 @@ func connectToNode(force bool) (net.Conn, error) {
 		err = json.Unmarshal(body, rpcResp)
 		if err != nil {
 			return nil, err
+		}
+		if rpcResp.Error != nil {
+			return nil, errors.New(fmt.Sprintf("Couldn't get proxy address: %#v", rpcResp.Error))
 		}
 
 		nodeConn, err = net.DialTimeout("tcp", rpcResp.Result, time.Duration(config.NodeDialTimeout) * time.Second)
