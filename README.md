@@ -15,13 +15,24 @@ go build proxy.go
 Edit `config.json` with your data:
 ```json
 {
-  "SeedNode": "http://testnet-seed-0001.nkn.org:30003",
+  "SeedList": [
+    "http://testnet-seed-0001.nkn.org:30003",
+    "http://testnet-seed-0002.nkn.org:30003",
+    "http://testnet-seed-0003.nkn.org:30003",
+    "http://testnet-seed-0004.nkn.org:30003",
+    "http://testnet-seed-0005.nkn.org:30003",
+    "http://testnet-seed-0006.nkn.org:30003",
+    "http://testnet-seed-0007.nkn.org:30003",
+    "http://testnet-seed-0008.nkn.org:30003"
+  ],
   "Listener": ":8888",
+  "NodeDialTimeout": 30,
   "PublicKey": ""
 }
 ```
-`SeedNode` seed node to connect to NKN  
+`SeedList` list of seed nodes to connect to NKN  
 `Listener` port to listen for connections  
+`NodeDialTimeout` timeout for NKN node connection  
 `PublicKey` your public key
 
 Run like this:
