@@ -1,4 +1,4 @@
-package: github.com/trueinsider/new-kind-of-proxy/client
+package: github.com/trueinsider/new-kind-of-proxy/server
 import:
   - package: github.com/nknorg/nkn-sdk-go
   - package: github.com/xtaci/smux

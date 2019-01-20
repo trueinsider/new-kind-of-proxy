@@ -1,18 +1,15 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net"
-	"net/http"
 	"time"
 
+	. "github.com/nknorg/nkn-sdk-go"
 	"github.com/xtaci/smux"
 )
 
@@ -24,17 +21,7 @@ type Configuration struct {
 	SeedList        []string `json:"SeedList"`
 	Listener        string   `json:"Listener"`
 	NodeDialTimeout uint16   `json:"NodeDialTimeout"`
-	PublicKey       string   `json:"PublicKey"`
-}
-
-type RPCError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
-
-type RPCResponse struct {
-	Result string    `json:"result"`
-	Error  *RPCError `json:"error"`
+	PrivateKey      string   `json:"PrivateKey"`
 }
 
 func pipe(dest io.WriteCloser, src io.ReadCloser) {
@@ -45,33 +32,29 @@ func pipe(dest io.WriteCloser, src io.ReadCloser) {
 
 func connectToNode(force bool) (net.Conn, error) {
 	if nodeConn == nil || force {
-		data := []byte(`{"jsonrpc":"2.0","method":"gethttpproxyaddr","params":{"address":"` + config.PublicKey + `"}}`)
-		r := bytes.NewReader(data)
-		seeds := config.SeedList
-		rand.Shuffle(len(seeds), func(i int, j int) {
-			seeds[i], seeds[j] = seeds[j], seeds[i]
-		})
-		resp, err := http.Post(seeds[0], "application/json", r)
+		lastBucket, err := GetTopicBucketsCount("proxyhttp")
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		bucket := uint32(rand.Intn(int(lastBucket) + 1))
+		subscribers, err := GetSubscribers("proxyhttp", bucket)
 		if err != nil {
 			return nil, err
 		}
-		rpcResp := &RPCResponse{}
-		err = json.Unmarshal(body, rpcResp)
-		if err != nil {
-			return nil, err
-		}
-		if rpcResp.Error != nil {
-			return nil, errors.New(fmt.Sprintf("Couldn't get proxy address: %#v", rpcResp.Error))
-		}
+		randomSubscriberIndex := rand.Intn(len(subscribers))
+		i := 0
+		for subscriber, address := range subscribers {
+			if i != randomSubscriberIndex {
+				i++
+				continue
+			}
 
-		nodeConn, err = net.DialTimeout("tcp", rpcResp.Result, time.Duration(config.NodeDialTimeout) * time.Second)
-		if err != nil {
-			return nil, err
+			log.Println("Found proxy provider at address:", address, "from", subscriber)
+
+			nodeConn, err = net.DialTimeout("tcp", address, time.Duration(config.NodeDialTimeout)*time.Second)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

@@ -11,5 +11,5 @@
   ],
   "Listener": ":8888",
   "NodeDialTimeout": 30,
-  "PublicKey": ""
+  "PrivateKey": ""
 }
