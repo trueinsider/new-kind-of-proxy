@@ -2,5 +2,5 @@
   "ListenPort": 8333,
   "DialTimeout": 30,
   "PrivateKey": "",
-  "SubscriptionDuration": 65535
+  "SubscriptionDuration": 60
 }

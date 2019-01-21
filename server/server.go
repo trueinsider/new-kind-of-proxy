@@ -20,6 +20,8 @@ import (
 	"github.com/xtaci/smux"
 )
 
+const Topic = "proxyhttp"
+
 var config = &Configuration{}
 
 type Configuration struct {
@@ -171,7 +173,7 @@ func main() {
 	// retry subscription once a minute (regardless of result)
 	go func() {
 		for {
-			txid, err := w.SubscribeToFirstAvailableBucket("", "proxyhttp", config.SubscriptionDuration, s.Listener)
+			txid, err := w.SubscribeToFirstAvailableBucket("", Topic, config.SubscriptionDuration, s.Listener)
 			if err != nil {
 				log.Println("Couldn't subscribe:", err)
 			} else {
