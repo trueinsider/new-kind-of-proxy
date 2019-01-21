@@ -13,6 +13,8 @@ import (
 	"github.com/xtaci/smux"
 )
 
+const Topic = "proxyhttp"
+
 var nodeConn net.Conn
 var nodeSession *smux.Session
 var config = &Configuration{}
@@ -32,28 +34,43 @@ func pipe(dest io.WriteCloser, src io.ReadCloser) {
 
 func connectToNode(force bool) (net.Conn, error) {
 	if nodeConn == nil || force {
-		lastBucket, err := GetTopicBucketsCount("proxyhttp")
-		if err != nil {
-			return nil, err
-		}
-		bucket := uint32(rand.Intn(int(lastBucket) + 1))
-		subscribers, err := GetSubscribers("proxyhttp", bucket)
-		if err != nil {
-			return nil, err
-		}
-		randomSubscriberIndex := rand.Intn(len(subscribers))
-		i := 0
-		for subscriber, address := range subscribers {
-			if i != randomSubscriberIndex {
-				i++
-				continue
-			}
-
-			log.Println("Found proxy provider at address:", address, "from", subscriber)
-
-			nodeConn, err = net.DialTimeout("tcp", address, time.Duration(config.NodeDialTimeout)*time.Second)
+		RandomBucket:
+		for {
+			lastBucket, err := GetTopicBucketsCount(Topic)
 			if err != nil {
 				return nil, err
+			}
+			bucket := uint32(rand.Intn(int(lastBucket) + 1))
+			subscribers, err := GetSubscribers(Topic, bucket)
+			if err != nil {
+				return nil, err
+			}
+			subscribersCount := len(subscribers)
+
+			subscribersIndexes := rand.Perm(subscribersCount)
+
+			RandomSubscriber:
+			for {
+				if len(subscribersIndexes) == 0 {
+					continue RandomBucket
+				}
+				var subscriberIndex int
+				subscriberIndex, subscribersIndexes = subscribersIndexes[0], subscribersIndexes[1:]
+				i := 0
+				for subscriber, address := range subscribers {
+					if i != subscriberIndex {
+						i++
+						continue
+					}
+
+					nodeConn, err = net.DialTimeout("tcp", address, time.Duration(config.NodeDialTimeout)*time.Second)
+					if err != nil {
+						log.Println("Couldn't connect to address", address, "from", subscriber, "because:", err)
+						continue RandomSubscriber
+					}
+
+					log.Println("Connected to proxy provider at", address, "from", subscriber)
+				}
 			}
 		}
 	}
