@@ -136,6 +136,15 @@ func main() {
 		log.Panicln("Couldn't bind listener:", err)
 	}
 
+	seeds := config.SeedList
+	rand.Shuffle(len(seeds), func(i int, j int) {
+		seeds[i], seeds[j] = seeds[j], seeds[i]
+	})
+
+	SeedRPCServerAddr = seeds[0]
+
+	Init()
+
 	for {
 		browserConn, err := browserListener.Accept()
 		if err != nil {
