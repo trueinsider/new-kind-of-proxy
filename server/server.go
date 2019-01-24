@@ -27,7 +27,6 @@ var config = &Configuration{}
 
 type Configuration struct {
 	SeedList             []string `json:"SeedList"`
-	Hostname             string `json:"Hostname"`
 	ListenPort           int    `json:"ListenPort"`
 	DialTimeout          uint16 `json:"DialTimeout"`
 	PrivateKey           string `json:"PrivateKey"`
@@ -48,7 +47,7 @@ type HTTPProxy struct {
 
 func NewServer() *HTTPProxy {
 	return &HTTPProxy{
-		Listener: config.Hostname + ":" + strconv.Itoa(config.ListenPort),
+		Listener: ":" + strconv.Itoa(config.ListenPort),
 		timeout:  time.Duration(config.DialTimeout),
 	}
 }
