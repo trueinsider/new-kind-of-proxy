@@ -179,7 +179,11 @@ func main() {
 		for {
 			txid, err := w.SubscribeToFirstAvailableBucket("", Topic, config.SubscriptionDuration, ip + s.Listener)
 			if err != nil {
-				log.Println("Couldn't subscribe:", err)
+				if err == AlreadySubscribed {
+					log.Println("Already subscribed to this topic:", err)
+				} else {
+					log.Println("Couldn't subscribe:", err)
+				}
 			} else {
 				log.Println("Subscribed to topic successfully:", txid)
 			}
