@@ -150,13 +150,9 @@ func main() {
 		log.Panicln("Couldn't unmarshal config:", err)
 	}
 
-	if config.Hostname == "" {
-		ip, err := ipify.GetIp()
-		if err != nil {
-			log.Panicln("Couldn't get IP:", err)
-		}
-
-		config.Hostname = ip
+	ip, err := ipify.GetIp()
+	if err != nil {
+		log.Panicln("Couldn't get IP:", err)
 	}
 
 	seeds := config.SeedList
@@ -181,7 +177,7 @@ func main() {
 	// retry subscription once a minute (regardless of result)
 	go func() {
 		for {
-			txid, err := w.SubscribeToFirstAvailableBucket("", Topic, config.SubscriptionDuration, s.Listener)
+			txid, err := w.SubscribeToFirstAvailableBucket("", Topic, config.SubscriptionDuration, ip + s.Listener)
 			if err != nil {
 				log.Println("Couldn't subscribe:", err)
 			} else {
