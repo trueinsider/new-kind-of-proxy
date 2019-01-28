@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net"
 	"net/http"
 	"net/textproto"
@@ -26,7 +25,6 @@ const Topic = "proxyhttp"
 var config = &Configuration{}
 
 type Configuration struct {
-	SeedList             []string `json:"SeedList"`
 	ListenPort           int    `json:"ListenPort"`
 	DialTimeout          uint16 `json:"DialTimeout"`
 	PrivateKey           string `json:"PrivateKey"`
@@ -154,13 +152,6 @@ func main() {
 	if err != nil {
 		log.Panicln("Couldn't get IP:", err)
 	}
-
-	seeds := config.SeedList
-	rand.Shuffle(len(seeds), func(i int, j int) {
-		seeds[i], seeds[j] = seeds[j], seeds[i]
-	})
-
-	SeedRPCServerAddr = seeds[0]
 
 	Init()
 

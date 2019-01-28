@@ -20,10 +20,9 @@ var nodeSession *smux.Session
 var config = &Configuration{}
 
 type Configuration struct {
-	SeedList        []string `json:"SeedList"`
-	Listener        string   `json:"Listener"`
-	NodeDialTimeout uint16   `json:"NodeDialTimeout"`
-	PrivateKey      string   `json:"PrivateKey"`
+	Listener        string `json:"Listener"`
+	NodeDialTimeout uint16 `json:"NodeDialTimeout"`
+	PrivateKey      string `json:"PrivateKey"`
 }
 
 func pipe(dest io.WriteCloser, src io.ReadCloser) {
@@ -136,13 +135,6 @@ func main() {
 	if err != nil {
 		log.Panicln("Couldn't bind listener:", err)
 	}
-
-	seeds := config.SeedList
-	rand.Shuffle(len(seeds), func(i int, j int) {
-		seeds[i], seeds[j] = seeds[j], seeds[i]
-	})
-
-	SeedRPCServerAddr = seeds[0]
 
 	Init()
 
