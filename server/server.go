@@ -168,10 +168,10 @@ func main() {
 	// retry subscription once a minute (regardless of result)
 	go func() {
 		for {
-			txid, err := w.SubscribeToFirstAvailableBucket("", Topic, config.SubscriptionDuration, ip + s.Listener)
+			txid, err := w.SubscribeToFirstAvailableBucket(Topic, Topic, config.SubscriptionDuration, ip + s.Listener)
 			if err != nil {
 				if err == AlreadySubscribed {
-					log.Println("Already subscribed to this topic:", err)
+					log.Println(err)
 				} else {
 					log.Println("Couldn't subscribe:", err)
 				}
