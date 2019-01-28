@@ -70,6 +70,7 @@ func connectToNode(force bool) (net.Conn, error) {
 					}
 
 					log.Println("Connected to proxy provider at", address, "from", subscriber)
+					break RandomBucket
 				}
 			}
 		}
