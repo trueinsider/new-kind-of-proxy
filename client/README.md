@@ -11,7 +11,7 @@ Edit `config.json` with your data:
 {
   "Listener": ":8888",
   "NodeDialTimeout": 30,
-  "PublicKey": ""
+  "PrivateKey": ""
 }
 ```
 `Listener` port to listen for connections  
