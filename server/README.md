@@ -18,7 +18,7 @@ Edit `config.json` with your data:
 `ListenPort` port to listen for connections  
 `DialTimeout` timeout for node-to-HTTPS connection  
 `PrivateKey` your private key  
-`SubscriptionDuration` duration for subscription  
+`SubscriptionDuration` duration for subscription in blocks  
 
 Run like this:
 ```shell
