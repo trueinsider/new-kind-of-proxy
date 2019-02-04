@@ -25,10 +25,11 @@ const Topic = "proxyhttp"
 var config = &Configuration{}
 
 type Configuration struct {
-	ListenPort           int    `json:"ListenPort"`
-	DialTimeout          uint16 `json:"DialTimeout"`
-	PrivateKey           string `json:"PrivateKey"`
-	SubscriptionDuration uint32 `json:"SubscriptionDuration"`
+	ListenPort           int           `json:"ListenPort"`
+	DialTimeout          uint16        `json:"DialTimeout"`
+	PrivateKey           string        `json:"PrivateKey"`
+	SubscriptionDuration uint32        `json:"SubscriptionDuration"`
+	SubscriptionInterval time.Duration `json:"SubscriptionInterval"`
 }
 
 func pipe(dest io.WriteCloser, src io.ReadCloser) {
@@ -167,19 +168,22 @@ func main() {
 
 	// retry subscription once a minute (regardless of result)
 	go func() {
+		var waitTime time.Duration
 		for {
 			txid, err := w.SubscribeToFirstAvailableBucket(Topic, Topic, config.SubscriptionDuration, ip + s.Listener)
 			if err != nil {
 				if err == AlreadySubscribed {
+					waitTime = config.SubscriptionInterval
 					log.Println(err)
 				} else {
-					log.Println("Couldn't subscribe:", err)
+					log.Panicln("Couldn't subscribe:", err)
 				}
 			} else {
+				waitTime = time.Duration(config.SubscriptionDuration) * 20 * time.Second
 				log.Println("Subscribed to topic successfully:", txid)
 			}
 
-			time.Sleep(time.Minute)
+			time.Sleep(waitTime)
 		}
 	}()
 
